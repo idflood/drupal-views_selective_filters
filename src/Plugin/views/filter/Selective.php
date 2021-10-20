@@ -7,7 +7,6 @@
 
 namespace Drupal\views_selective_filters\Plugin\views\filter;
 
-use Drupal\Component\Utility\SafeMarkup;
 use Drupal\Core\Entity\ContentEntityTypeInterface;
 use Drupal\Core\Form\FormState;
 use Drupal\Core\Form\FormStateInterface;
@@ -15,6 +14,7 @@ use Drupal\views\Plugin\views\display\DisplayPluginBase;
 use Drupal\views\Plugin\views\filter\InOperator;
 use Drupal\views\ViewExecutable;
 use Drupal\views\Views;
+use Drupal\Component\Utility\Html;
 
 /**
  * Views filter handler for selective values.
@@ -172,9 +172,9 @@ class Selective extends InOperator {
                 '#theme' => 'status_messages',
                 '#message_list' => ['warning' => [$this->t('This filter is always exposed to users.')]],
                 '#status_headings' => [
-                    'status' => t('Status message'),
-                    'error' => t('Error message'),
-                    'warning' => t('Warning message'),
+                    'status' => $this->t('Status message'),
+                    'error' => $this->t('Error message'),
+                    'warning' => $this->t('Warning message'),
                 ],
             )));
         // Remove option to unexpose filter. Tried to disable, but did not work.
@@ -374,10 +374,11 @@ class Selective extends InOperator {
 
             // Check to see if the user remembered to add the field.
             if (empty($fields)) {
-                drupal_set_message(t('Selective query filter must have corresponding field added to view with Administrative Name set to "@name" and Base Type "@type"',
-                    array(
+                \Drupal::messenger()->addMessage('Selective query filter must have corresponding field added to view with Administrative Name set to "@name" and Base Type "@type"',
+                    [
                         '@name' => $ui_name,
-                        '@type' => $base_field)),
+                        '@type' => $base_field
+                    ],
                     'error');
                 return [];
             }
@@ -399,10 +400,11 @@ class Selective extends InOperator {
                 ($field_options['relationship'] === $this->options['relationship']);
 
             if (!$equal) {
-                drupal_set_message(t('Selective filter "@name": relationship of field and filter must match.',
-                    array(
+                \Drupal::messenger()->addMessage('Selective filter "@name": relationship of field and filter must match.',
+                    [
                         '@name' => $ui_name,
-                        '@type' => $base_field)),
+                        '@type' => $base_field,
+                    ],
                     'error');
                 return [];
             }
@@ -469,7 +471,7 @@ class Selective extends InOperator {
                     }
 
                     if (NULL !== $value) {
-                        $oids[$key] = SafeMarkup::checkPlain($value);
+                        $oids[$key] = Html::escape($value);
                     }
                 }
             }
@@ -500,7 +502,7 @@ class Selective extends InOperator {
 
             // If limit exceeded this field is not good for being "selective".
             if (!empty($max_items) && count($oids) === $max_items) {
-                drupal_set_message(t('Selective filter "@field" has limited the amount of total results. Please, review you query configuration.', array('@field' => $ui_name)), 'warning');
+                \Drupal::messenger()->addMessage('Selective filter "@field" has limited the amount of total results. Please, review you query configuration.', ['@field' => $ui_name], 'warning');
             }
 
             static::$results[$signature] = $oids;
