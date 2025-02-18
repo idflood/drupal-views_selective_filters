@@ -23,10 +23,10 @@ function views_selective_filters_views_query_alter(ViewExecutable $view, QueryPl
   $uses_selective_filters = FALSE;
   $replacement_map = [];
   foreach ($view->filter as $filter_name => $filter) {
-    if (preg_match("/${missing}${field_suffix}$/", $filter_name) === 1) {
+    if (preg_match("/{$missing}{$field_suffix}$/", $filter_name) === 1) {
       $uses_selective_filters = TRUE;
-      $replace_with = preg_replace("/${field_suffix}$/", '', $filter_name);
-      $look_for = preg_replace("/${missing}$/", '', $replace_with);
+      $replace_with = preg_replace("/{$field_suffix}$/", '', $filter_name);
+      $look_for = preg_replace("/{$missing}$/", '', $replace_with);
       $replacement_map[$look_for] = $replace_with;
     }
   }
@@ -37,7 +37,7 @@ function views_selective_filters_views_query_alter(ViewExecutable $view, QueryPl
         $exploded = explode('.', $condition['field']);
         $search_key = array_pop($exploded);
         if (isset($replacement_map[$search_key])) {
-          $condition['field'] = preg_replace("/.${search_key}$/", '.' . $replacement_map[$search_key], $condition['field']);
+          $condition['field'] = preg_replace("/.{$search_key}$/", '.' . $replacement_map[$search_key], $condition['field']);
         }
       }
     }
