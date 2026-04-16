@@ -585,5 +585,4 @@ class Selective extends InOperator {
 
         return $this->originalOptions;
     }
-
 }
